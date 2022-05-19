@@ -193,7 +193,7 @@ _showmodalReminder(int index, context) {
               leading: Icon(Icons.add),
               title: Text("Recuerdamelo"),
               onTap: () => {
-                print("Recordar mas tarde")
+                print("Recordar mas tarde uwu")
                 //FUNCION PARA AÑADIR AL CALENDARIO
               },
             ),
