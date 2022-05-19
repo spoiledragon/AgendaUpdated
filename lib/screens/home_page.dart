@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, avoid_print, unused_local_variable, avoid_unnecessary_containers, camel_case_types
 
 import 'dart:convert';
+import 'package:agendapp/clases/event_class.dart';
 import 'package:agendapp/screens/contacts_page.dart';
 import 'package:agendapp/widget_done/recordatorio.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,8 +20,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  //VARIABLES
   List<Reminder> reminders = [];
+  DateTime _SelectedDay = DateTime.now();
+  DateTime _FocusedDay = DateTime.now();
+  late Map<DateTime, List<Event>> selectedEvents;
 
+  //Funciones
   Future<void> fetchReminder() async {
     reminders.clear();
     var url =
@@ -44,7 +50,13 @@ class _HomeScreenState extends State<HomeScreen> {
     // ignore: todo
     // TODO: implement initState
     super.initState();
+    selectedEvents = {};
     fetchReminder();
+  }
+
+  //LISTA DE EVENTOS
+  List<Event> _getEventFromDay(DateTime date) {
+    return selectedEvents[date]??[];
   }
 
   @override
@@ -52,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
     //Esto si Funciona
     //aca es todo lo que si se ve
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: Color.fromARGB(255, 46, 46, 46),
       floatingActionButton: FloatingActionButton(
         onPressed: () => fetchReminder(),
         child: Icon(Icons.refresh),
@@ -91,11 +103,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       //mando  a llamar al widget
                       return Column(
                         children: [
-                          reminder(
-                              reminders[index].reminder,
-                              reminders[index].date,
-                              reminders[index].id,
-                              reminders[index].priority),
+                          GestureDetector(
+                            onTap: () => {
+                              _showmodalReminder(index, context),
+                              print(index),
+                            },
+                            child: reminder(
+                                reminders[index].reminder,
+                                reminders[index].date,
+                                reminders[index].id,
+                                reminders[index].priority),
+                          ),
                           SizedBox(
                             height: 20,
                           )
@@ -110,11 +128,41 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                 children: [
                   TableCalendar(
-                    
                     firstDay: DateTime.utc(2010, 10, 16),
                     lastDay: DateTime.utc(2030, 3, 14),
-                    focusedDay: DateTime.now(),
-                   
+                    focusedDay: _SelectedDay,
+                    calendarFormat: CalendarFormat.month,
+                    daysOfWeekVisible: true,
+                    //Eventos!
+                    eventLoader: _getEventFromDay,
+                    //day changed
+                    onDaySelected: (DateTime _selectDay, DateTime focusDay) {
+                      setState(() {
+                        _SelectedDay = _selectDay;
+                        _FocusedDay = focusDay;
+                      });
+                      print(_FocusedDay);
+                    },
+                    selectedDayPredicate: (DateTime date) {
+                      return isSameDay(_SelectedDay, date);
+                    },
+
+                    //poco de diseño pal calendario
+                    calendarStyle: CalendarStyle(
+                      isTodayHighlighted: true,
+                      selectedDecoration: BoxDecoration(
+                        color: Colors.cyan,
+                        shape: BoxShape.rectangle,
+                      ),
+                      todayDecoration: BoxDecoration(
+                        color: Colors.purple,
+                        shape: BoxShape.rectangle,
+                      ),
+                      defaultDecoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        
+                      ),
+                    ),
                   ),
                 ],
               )),
@@ -131,9 +179,32 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
 
-
-
+_showmodalReminder(int index, context) {
+  //MODAL DESPLEGABLE CUANDO SE PRESIONA LA ACTIVIDAD
+  showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.add),
+              title: Text("Recuerdamelo"),
+              onTap: () => {
+                print("Recordar mas tarde")
+                //FUNCION PARA AÑADIR AL CALENDARIO
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_forever),
+              title: Text("Borrar"),
+              onTap: () => {print("Recordar mas tarde")},
+            ),
+          ],
+        );
+      });
 }
 
 class addReminder extends StatefulWidget {
