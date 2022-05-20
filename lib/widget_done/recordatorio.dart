@@ -17,12 +17,23 @@ class reminder extends StatefulWidget {
     this.id,
     this.prioridad,
   );
+
   State<reminder> createState() => _reminderState();
 }
 
 class _reminderState extends State<reminder> {
   @override
   Widget build(BuildContext context) {
+    var colorines = Colors.amber;
+    if (widget.prioridad == "Low") {
+      colorines = Colors.green;
+    }
+    if (widget.prioridad == "Medium") {
+      colorines = Colors.amber;
+    }
+    if (widget.prioridad == "High") {
+      colorines = Colors.red;
+    }
     return Container(
       height: 100,
       decoration: BoxDecoration(
@@ -33,7 +44,7 @@ class _reminderState extends State<reminder> {
       child: Row(children: <Widget>[
         //Franja Color
         Container(
-          decoration: BoxDecoration(color: Colors.amber),
+          decoration: BoxDecoration(color: colorines),
           width: 10,
         ),
         //Contenido
@@ -54,7 +65,9 @@ class _reminderState extends State<reminder> {
                         color: Colors.white, fontWeight: FontWeight.w600),
                     textAlign: TextAlign.justify,
                   ),
-                  SizedBox(height: 5,),
+                  SizedBox(
+                    height: 5,
+                  ),
                   Text(
                     widget.recordatorio,
                     style: TextStyle(
@@ -64,18 +77,15 @@ class _reminderState extends State<reminder> {
                   SizedBox(
                     height: 5,
                   ),
-                  Text(widget.hora, style: TextStyle(color: Colors.white)),
-                  SizedBox(
-                    height: 5,
-                  ),
                   Text(widget.prioridad, style: TextStyle(color: Colors.white)),
                 ],
               ),
               //De este lado ira el icono
-              
             ],
           ),
         ),
+
+        Text(widget.hora, style: TextStyle(color: Colors.white)),
       ]),
     );
   }

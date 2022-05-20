@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, avoid_print, unused_local_variable, avoid_unnecessary_containers, camel_case_types
 
 import 'dart:convert';
-import 'dart:math';
 import 'package:agendapp/clases/event_class.dart';
 import 'package:agendapp/screens/contacts_page.dart';
 import 'package:agendapp/widget_done/recordatorio.dart';
@@ -41,6 +40,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> fetchReminder() async {
     print("se hace la llamada");
     reminders.clear();
+    _selectedEvents.clear();
     var url =
         'https://thelmaxd.000webhostapp.com/Agendapp/reminders.php?userID=' +
             widget.id;
@@ -51,11 +51,88 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     for (var responsejson in reminderesponse) {
       reminders.add(Reminder.fromJson(responsejson));
     }
-    print(reminders[0].id);
+
+    for (var rem in reminders) {
+      if (rem.remind == "1") {
+        print("recordar");
+        print(rem.name);
+//AQUI DEBERIA PODER AGREGAR LA FUNCION
+        DateTime fechita = DateTime.parse(rem.date);
+        DateTime now = DateTime(fechita.year, fechita.month, fechita.day);
+        if (_selectedEvents[fechita] == null) {
+          _selectedEvents[fechita] = [];
+          _selectedEvents[fechita]!.add(Event(rem.name));
+        } else {
+          _selectedEvents[fechita]!.add(Event(rem.name));
+        }
+        print(_selectedEvents);
+      }
+    }
+
     setState(() {});
     int seconds = 1;
     return Future.delayed(Duration(seconds: 3));
   }
+
+  //MODALITO
+  _showmodalReminder(
+    int index,
+    context,
+    arr,
+    Map<DateTime, List<Event>> _selectedEvents,
+  ) {
+    //MODAL DESPLEGABLE CUANDO SE PRESIONA LA ACTIVIDAD
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          print(arr[index].name);
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.add),
+                title: Text("Recuerdamelo"),
+                onTap: () {
+                  print("Recuerda esto");
+                  //AQUI DEBERIA PODER AGREGAR LA FUNCIOR
+                  Recordar(arr[index].id);
+                  fetchReminder();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete_forever),
+                title: Text("Borrar"),
+
+                //FUNCION PARA AÑADIR AL CALENDARIO
+                onTap: () {
+                  Borrar(index, arr);
+                  fetchReminder();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  Future<void> Recordar(id) async {
+    print("Listo para recordar");
+    var url =
+        'https://thelmaxd.000webhostapp.com/Agendapp/edit_Reminder.php?id=' +
+            id;
+    Response response = await get(Uri.parse(url));
+  }
+
+  Future<void> Borrar(int index, arr) async {
+    print("Listo para Borrar");
+    var url =
+        'https://thelmaxd.000webhostapp.com/Agendapp/delete_reminder.php?id=' +
+            arr[index].id;
+    Response response = await get(Uri.parse(url));
+    fetchReminder();
+  }
+
+  //PARA ACTIVAR CUANDO SE DEBE DE RECORDAR
+  Future<void> activate_Reminder(id) async {}
 
   @override
   void initState() {
@@ -123,9 +200,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       return Column(
                         children: [
                           GestureDetector(
-                            onTap: () => {
+                            onTap: () {
                               _showmodalReminder(
-                                  index, context, reminders, _selectedEvents)
+                                index,
+                                context,
+                                reminders,
+                                _selectedEvents,
+                              );
+                              DateTime fechita =
+                                  DateTime.parse(reminders[index].date);
+                              DateTime select = DateTime(
+                                  fechita.year, fechita.month, fechita.day);
+                              setState(() {
+                                _SelectedDay = select;
+                              });
                             },
                             child: reminder(
                                 reminders[index].name,
@@ -191,8 +279,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ],
                     ),
                     ..._getEventFromDay(_SelectedDay)
-                        .map((Event event) => ListTile(
-                              title: Text(event.title),
+                        .map((Event event) => Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.white)),
+                                child: ListTile(
+                                  title: Center(
+                                    child: Text(
+                                      event.title,
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             )),
                   ],
                 ),
@@ -212,45 +313,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-_showmodalReminder(
-    int index, context, arr, Map<DateTime, List<Event>> _selectedEvents) {
-  //MODAL DESPLEGABLE CUANDO SE PRESIONA LA ACTIVIDAD
-  showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        print(arr[index].name);
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.add),
-              title: Text("Recuerdamelo"),
-              onTap: () {
-                print("esto");
-                DateTime fechita = DateTime.parse(arr[index].date);
-                //AQUI DEBERIA PODER AGREGAR LA FUNCION
-                DateTime now =
-                    DateTime(fechita.year, fechita.month, fechita.day);
-                if (_selectedEvents[fechita] == null) {
-                  _selectedEvents[fechita] = [];
-                  _selectedEvents[fechita]!.add(Event(arr[index].name));
-                } else {
-                  _selectedEvents[fechita]!.add(Event(arr[index].name));
-                }
-                print(_selectedEvents);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.delete_forever),
-              title: Text("Borrar"),
-              //FUNCION PARA AÑADIR AL CALENDARIO
-              onTap: () => {},
-            ),
-          ],
-        );
-      });
-}
-
+//WIDGET DE LA DERECHA UWU
 class addReminder extends ConsumerStatefulWidget {
   @override
   final String id;

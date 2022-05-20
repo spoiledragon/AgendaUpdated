@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+
+
 List<Reminder> reminderFromJson(String str) =>
     List<Reminder>.from(json.decode(str).map((x) => Reminder.fromJson(x)));
 
@@ -13,6 +15,7 @@ class Reminder {
     required this.reminder,
     required this.date,
     required this.name,
+    required this.remind,
   });
 
   String id;
@@ -20,6 +23,7 @@ class Reminder {
   String reminder;
   String date;
   String name;
+  String remind;
 
   factory Reminder.fromJson(Map<String, dynamic> json) => Reminder(
         id: json["id"],
@@ -27,6 +31,8 @@ class Reminder {
         reminder: json["reminder"],
         date: json["date"],
         name: json["name"],
+        remind: json["remind"],
+
       );
 
   Map<String, dynamic> toJson() => {
@@ -35,5 +41,6 @@ class Reminder {
         "reminder": reminder,
         "date": date,
         "name": name,
+        "remind":remind,
       };
 }
