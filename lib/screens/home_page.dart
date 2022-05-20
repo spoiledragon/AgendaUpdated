@@ -96,7 +96,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   print("Recuerda esto");
                   //AQUI DEBERIA PODER AGREGAR LA FUNCIOR
                   Recordar(arr[index].id);
-                  fetchReminder();
                 },
               ),
               ListTile(
@@ -106,7 +105,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 //FUNCION PARA AÑADIR AL CALENDARIO
                 onTap: () {
                   Borrar(index, arr);
-                  fetchReminder();
                 },
               ),
             ],
@@ -120,6 +118,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         'https://thelmaxd.000webhostapp.com/Agendapp/edit_Reminder.php?id=' +
             id;
     Response response = await get(Uri.parse(url));
+    fetchReminder();
   }
 
   Future<void> Borrar(int index, arr) async {
@@ -271,9 +270,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               color: Colors.purple,
                               shape: BoxShape.rectangle,
                             ),
-                            defaultDecoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                            ),
                           ),
                         ),
                       ],
@@ -331,11 +327,27 @@ class _addReminderState extends ConsumerState<addReminder> {
   var r_date;
 
   var _CurrentSelectedDate;
+  var _CurrentSelectedDateonString;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    setState(() {
+      _CurrentSelectedDate = DateTime.now();
+      _CurrentSelectedDateonString =
+          DateFormat('yyyy-MM-dd').format(_CurrentSelectedDate);
+    });
+  }
+
   //CALL A EL DATEPICKER
   void callDatePicker() async {
     var selectedDate = await getDatePickerWidget();
     setState(() {
       _CurrentSelectedDate = selectedDate;
+      _CurrentSelectedDateonString =
+          DateFormat('yyyy-MM-dd').format(_CurrentSelectedDate);
     });
   }
 
@@ -401,11 +413,11 @@ class _addReminderState extends ConsumerState<addReminder> {
     //BOTON DE AGREGAR
     final addBtn = Material(
       elevation: 5,
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(10),
       color: Colors.blue,
       child: MaterialButton(
         padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
-        minWidth: MediaQuery.of(context).size.width,
+        minWidth: 100,
         onPressed: () async {
           if (nombreController.text != Null &&
               descriptionController.text != null) {
@@ -428,7 +440,7 @@ class _addReminderState extends ConsumerState<addReminder> {
           ref.read(counterProvider.notifier).increment();
         },
         child: Text(
-          "Create Reminder",
+          "Create Activity",
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 20,
@@ -474,7 +486,7 @@ class _addReminderState extends ConsumerState<addReminder> {
                 onPressed: callDatePicker,
                 //style: ButtonStyle(backgroundColor: Colors.white),
                 child: Text(
-                  "Pick Date",
+                  "$_CurrentSelectedDateonString",
                   style: TextStyle(
                       color: Colors.white, fontSize: 20, letterSpacing: 1.5),
                 )),
@@ -490,13 +502,16 @@ class _addReminderState extends ConsumerState<addReminder> {
               ),
               textAlign: TextAlign.center,
             ),
+            SizedBox(
+              height: 20,
+            ),
             //AQUI HARE EL MODAL PARA SELECCIONAR LA PRIORIDAD
 
             Center(
               child: Container(
                 height: 80,
                 child: CupertinoPicker(
-                    itemExtent: 37,
+                    itemExtent: 40,
                     onSelectedItemChanged: (selectedIndex) {
                       print(selectedIndex);
                       if (selectedIndex == 0) {
@@ -516,23 +531,32 @@ class _addReminderState extends ConsumerState<addReminder> {
                       }
                     },
                     children: [
-                      Text(
-                        "High",
-                        style: TextStyle(color: Colors.white, fontSize: 15),
-                        textAlign: TextAlign.center,
+                      Center(
+                        child: Text(
+                          "High",
+                          style: TextStyle(color: Colors.white, fontSize: 15),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      Text(
-                        "Medium",
-                        style: TextStyle(color: Colors.white, fontSize: 15),
-                        textAlign: TextAlign.center,
+                      Center(
+                        child: Text(
+                          "Medium",
+                          style: TextStyle(color: Colors.white, fontSize: 15),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      Text(
-                        "Low",
-                        style: TextStyle(color: Colors.white, fontSize: 15),
-                        textAlign: TextAlign.center,
+                      Center(
+                        child: Text(
+                          "Low",
+                          style: TextStyle(color: Colors.white, fontSize: 15),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ]),
               ),
+            ),
+            SizedBox(
+              height: 20,
             ),
             //Boton para enviar datos
             addBtn,
