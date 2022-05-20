@@ -9,7 +9,14 @@ class reminder extends StatefulWidget {
   String hora;
   String id;
   String prioridad;
-  reminder(this.recordatorio, this.hora, this.id, this.prioridad);
+  String name;
+  reminder(
+    this.name,
+    this.recordatorio,
+    this.hora,
+    this.id,
+    this.prioridad,
+  );
   State<reminder> createState() => _reminderState();
 }
 
@@ -42,9 +49,16 @@ class _reminderState extends State<reminder> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    widget.recordatorio,
+                    widget.name,
                     style: TextStyle(
                         color: Colors.white, fontWeight: FontWeight.w600),
+                    textAlign: TextAlign.justify,
+                  ),
+                  SizedBox(height: 5,),
+                  Text(
+                    widget.recordatorio,
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w300),
                     textAlign: TextAlign.justify,
                   ),
                   SizedBox(
@@ -58,10 +72,7 @@ class _reminderState extends State<reminder> {
                 ],
               ),
               //De este lado ira el icono
-              Icon(
-                Icons.book_online,
-                color: Colors.white,
-              )
+              
             ],
           ),
         ),
