@@ -321,13 +321,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       return Column(
                         children: [
                           GestureDetector(
-                            onTap: () {
+                            onLongPress: () {
                               _showmodalReminder(
                                 index,
                                 context,
                                 reminders,
                                 _selectedEvents,
                               );
+                            },
+                            onTap: () {
                               DateTime fechita =
                                   DateTime.parse(reminders[index].date);
                               DateTime select = DateTime(
