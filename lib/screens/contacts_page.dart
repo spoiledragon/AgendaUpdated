@@ -41,7 +41,7 @@ class _Contact_ListState extends State<Contact_List> {
   final _emailEditingController = TextEditingController();
   final _telEditingController = TextEditingController();
   final _urlEditingController = TextEditingController();
-  
+
   bool loading = true;
   List<Contact> contacts = [];
   @override
@@ -291,15 +291,30 @@ class _Contact_ListState extends State<Contact_List> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 //aqui pondre todo lo que debe de verse
-
-                    SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 CircleAvatar(
-                    backgroundImage: NetworkImage(contacts[index].photoUrl),radius: 50,),
-                    SizedBox(height: 10,),
-                Text(contacts[index].name,style: TextStyle(fontSize: 20,letterSpacing: 2,fontWeight: FontWeight.bold),),
-                    SizedBox(height: 10,),
+                  backgroundImage: NetworkImage(contacts[index].photoUrl),
+                  radius: 50,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  contacts[index].name,
+                  style: TextStyle(
+                      fontSize: 20,
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
                 Text(contacts[index].email),
-                    SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 Text(contacts[index].tel),
                 //--------------------------------
                 ListTile(

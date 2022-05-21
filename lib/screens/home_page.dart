@@ -23,6 +23,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   //VARIABLES
+  //Controladores,
+  final TextEditingController namReminderController = TextEditingController();
+  final TextEditingController descReminderController = TextEditingController();
   List<Reminder> reminders = [];
   DateTime _SelectedDay = DateTime.now();
   DateTime _FocusedDay = DateTime.now();
@@ -51,6 +54,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     for (var responsejson in reminderesponse) {
       reminders.add(Reminder.fromJson(responsejson));
     }
+    reminders.sort((a, b) {
+      DateTime fechita = DateTime.parse(a.date);
+      DateTime fechita2 = DateTime.parse(b.date);
+      DateTime now1 = DateTime(fechita.year, fechita.month, fechita.day);
+      DateTime now2 = DateTime(fechita2.year, fechita2.month, fechita2.day);
+      return now1.compareTo(now2);
+    });
 
     for (var rem in reminders) {
       if (rem.remind == "1") {
@@ -101,11 +111,108 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ListTile(
                 leading: Icon(Icons.delete_forever),
                 title: Text("Borrar"),
-
                 //FUNCION PARA AÑADIR AL CALENDARIO
                 onTap: () {
                   Borrar(index, arr);
                 },
+              ),
+              ListTile(
+                leading: Icon(Icons.edit_attributes),
+                title: Text("Editar"),
+                //FUNCION PARA AÑADIR AL CALENDARIO
+                onTap: () {
+                  Navigator.pop(context);
+                  namReminderController.text = arr[index].name;
+                  descReminderController.text = arr[index].reminder;
+                  _showEditModal(index, context, arr);
+
+                  //editar(index, arr);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  //MODAL DE EDICION
+
+  _showEditModal(int index, BuildContext context, arr) {
+    final nameField = TextFormField(
+      autofocus: false,
+      controller: namReminderController,
+      onSaved: (value) {
+        namReminderController.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.abc),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: "Nombre",
+        labelText: "Nombre",
+        filled: true,
+        fillColor: Colors.white,
+      ),
+    );
+    final descriptionField = TextFormField(
+      autofocus: false,
+      controller: descReminderController,
+      onSaved: (value) {
+        descReminderController.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.description),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: "Descripcion",
+        labelText: "Descripcion",
+        filled: true,
+        fillColor: Colors.white,
+      ),
+    );
+
+    final sendButton = Material(
+      elevation: 5,
+      borderRadius: BorderRadius.circular(30),
+      color: Colors.black,
+      child: MaterialButton(
+        padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        minWidth: 300,
+        onPressed: () {
+          editar(index, arr);
+          Navigator.pop(context);
+        },
+        child: Text(
+          "Send",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+    //MODAL DESPLEGABLE CUANDO SE PRESIONA LA ACTIVIDAD
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              SizedBox(
+                height: 10,
+              ),
+              nameField,
+              SizedBox(
+                height: 10,
+              ),
+              descriptionField,
+              SizedBox(
+                height: 10,
+              ),
+              sendButton,
+              SizedBox(
+                height: 10,
               ),
             ],
           );
@@ -130,8 +237,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     fetchReminder();
   }
 
-  //PARA ACTIVAR CUANDO SE DEBE DE RECORDAR
-  Future<void> activate_Reminder(id) async {}
+  Future<void> editar(int index, arr) async {
+    print("Editado");
+    var url =
+        'https://thelmaxd.000webhostapp.com/Agendapp/edit_reminder2.php?id=' +
+            arr[index].id +
+            '&name=' +
+            namReminderController.text +
+            '&desc=' +
+            descReminderController.text;
+
+    Response response = await get(Uri.parse(url));
+    fetchReminder();
+  }
 
   @override
   void initState() {
@@ -145,6 +263,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+//Fields
+
     //Esto si Funciona
 
     ref.listen<int>(counterProvider, (int? previousCount, int newCount) async {
@@ -165,7 +285,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Icon(Icons.refresh),
       ),
       appBar: AppBar(
+        backgroundColor: Colors.grey,
         centerTitle: true,
+        elevation: 0,
         title: Text("AGENDAPP"),
         actions: [
           IconButton(
