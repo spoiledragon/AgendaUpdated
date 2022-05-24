@@ -22,36 +22,61 @@ class _RegistrarionScreenState extends State<RegistrarionScreen> {
     try {
       bool emailValid = RegExp("[a-z]+.+@+alumnos.udg.mx")
           .hasMatch(emailEditingController.text);
-      if (emailValid) {
-        var url =
-            "https://thelmaxd.000webhostapp.com/Agendapp/signin.php?username=" +
-                userEditingController.text +
-                "&password=" +
-                passwordEditingController.text +
-                "&email=" +
-                emailEditingController.text +
-                "&code=" +
-                codeEditingController.text;
+      bool codeValid = RegExp("[0-9]").hasMatch(codeEditingController.text);
 
-        //print(url);
-        Response response = await get(Uri.parse(url));
-        print(response.body);
-        if (response.body == "1") {
-          //Aqui es que si jalo
-          _showToast(context, "Registrado con exito");
-          Navigator.of(context).pop();
-          //Si se ha registrado hay que mostrar algo
-        }
-        if (response.body == "0") {
-          _showToast(context, "Codigo Ya registrado");
-        }
-        if (response.body == "2") {
-          _showToast(context, "Registrado sin exito");
-        }
-      }else{
-        
-        _showToast(context, "Ingresa un Correo Valido");
+      if (userEditingController.text.isEmpty ||
+          codeEditingController.text.isEmpty ||
+          emailEditingController.text.isEmpty ||
+          passwordEditingController.text.isEmpty ||
+          confirmPasswordEditingController.text.isEmpty) {
+        _showToast(context, "Faltan llenar campos");
+        return;
       }
+
+      if(confirmPasswordEditingController.text!=passwordEditingController.text){
+          _showToast(context, "Las Password No coinciden");
+        return;
+      }
+
+      if (!emailValid) {
+        _showToast(context, "Ingresa Email Valido");
+        return;
+      }
+      if (!codeValid) {
+        _showToast(context, "Ingresa un codigo Valido");
+        return;
+      }
+
+      var url =
+          "https://thelmaxd.000webhostapp.com/Agendapp/signin.php?username=" +
+              userEditingController.text +
+              "&password=" +
+              passwordEditingController.text +
+              "&email=" +
+              emailEditingController.text +
+              "&code=" +
+              codeEditingController.text;
+      print(url);
+      //print(url);
+      Response response = await get(Uri.parse(url));
+      print(response.body);
+
+      if (response.body == "0") {
+        _showToast(context, "Algo salio mal");
+        return;
+      }
+      if (response.body == "2") {
+        _showToast(context, "Codigo Ya Registrado");
+        return;
+      }
+
+      if (response.body == "1") {
+        //Aqui es que si jalo
+        _showToast(context, "Registrado con exito");
+        Navigator.of(context).pop();
+        //Si se ha registrado hay que mostrar algo
+      }
+
       //https://thelmaxd.000webhostapp.com/Agendapp/signin.php?username=krystalpaws&password=patitas123&email=krystal.dragoness@gmail.com&code=213203106
     } catch (e) {
       print(e);
@@ -91,6 +116,7 @@ class _RegistrarionScreenState extends State<RegistrarionScreen> {
     final codeField = TextFormField(
       autofocus: false,
       controller: codeEditingController,
+      maxLength: 10,
       keyboardType: TextInputType.number,
       //validator: (){},
       onSaved: (value) {

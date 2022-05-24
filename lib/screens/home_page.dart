@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'package:agendapp/clases/event_class.dart';
 import 'package:agendapp/screens/contacts_page.dart';
+import 'package:agendapp/screens/login_screen.dart';
 import 'package:agendapp/widget_done/recordatorio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -178,8 +179,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
         minWidth: 300,
         onPressed: () {
-          editar(index, arr);
           Navigator.pop(context);
+          editar(index, arr);
         },
         child: Text(
           "Send",
@@ -291,13 +292,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         title: Text("AGENDAPP"),
         actions: [
           IconButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => contact_page(widget.id)));
-              },
-              icon: Icon(Icons.person))
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => contact_page(widget.id)));
+            },
+            icon: Icon(Icons.person),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()));
+            },
+            icon: Icon(Icons.exit_to_app),
+          ),
         ],
       ),
       body: Center(
@@ -383,17 +392,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             return isSameDay(_SelectedDay, date);
                           },
 
-                          //poco de diseño pal calendario
+                          //poco de diseño pal calendario EDITADO
                           calendarStyle: CalendarStyle(
                             isTodayHighlighted: true,
-                            selectedDecoration: BoxDecoration(
-                              color: Colors.cyan,
-                              shape: BoxShape.rectangle,
+                            defaultTextStyle: TextStyle(
+                                color: Color.fromARGB(
+                                    255, 255, 255, 255)), //Colores Dias
+                            weekendTextStyle: TextStyle(
+                                color: Color.fromARGB(255, 255, 255,
+                                    255)), //Colores Fines de Semana
+                            outsideTextStyle: TextStyle(
+                                color: Color.fromARGB(255, 255, 255,
+                                    255)), //Colores fuera de mes actual
+                            todayTextStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                          headerStyle: HeaderStyle(
+                            titleTextStyle: TextStyle(color: Colors.white),
+                            formatButtonDecoration: BoxDecoration(
+                              color: Color.fromARGB(255, 0, 204, 255),
+                              borderRadius: BorderRadius.circular(20.0),
                             ),
-                            todayDecoration: BoxDecoration(
-                              color: Colors.purple,
-                              shape: BoxShape.rectangle,
-                            ),
+                            formatButtonTextStyle:
+                                TextStyle(color: Colors.white),
+                            formatButtonShowsNext: false,
+                          ),
+                          calendarBuilders: CalendarBuilders(
+                            dowBuilder: (context, day) {
+                              final text = DateFormat.E().format(day);
+                              return Center(
+                                child: Text(
+                                  text,
+                                  style: TextStyle(
+                                      color: Color.fromARGB(255, 223, 222,
+                                          222)), //Color a los dias de la semana
+                                ),
+                              );
+                            },
+                            selectedBuilder: (context, date, events) =>
+                                Container(
+                                    margin: const EdgeInsets.all(4.0),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                        color: Theme.of(context).primaryColor,
+                                        borderRadius:
+                                            BorderRadius.circular(10.0)),
+                                    child: Text(
+                                      date.day.toString(),
+                                      style: TextStyle(color: Colors.black),
+                                    )),
+                            todayBuilder: (context, date, events) => Container(
+                                margin: const EdgeInsets.all(4.0),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                    color: Color.fromARGB(255, 0, 204, 255),
+                                    borderRadius: BorderRadius.circular(10.0)),
+                                child: Text(
+                                  date.day.toString(),
+                                  style: TextStyle(color: Colors.black),
+                                )),
                           ),
                         ),
                       ],
@@ -402,7 +460,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         .map((Event event) => Padding(
                               padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                               child: Container(
+                                //EDITAR
                                 decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    //shape: BoxShape.rectangle,
                                     border: Border.all(color: Colors.white)),
                                 child: ListTile(
                                   title: Center(
@@ -543,8 +604,8 @@ class _addReminderState extends ConsumerState<addReminder> {
         padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
         minWidth: 100,
         onPressed: () async {
-          if (nombreController.text != Null &&
-              descriptionController.text != null) {
+          if (nombreController.text.isNotEmpty &&
+              descriptionController.text.isNotEmpty) {
             setState(() {
               r_name = nombreController.text;
               r_desc = descriptionController.text;
@@ -606,17 +667,22 @@ class _addReminderState extends ConsumerState<addReminder> {
               height: 20,
             ),
             //Para seleccionar la fecha
-            TextButton(
-                onPressed: callDatePicker,
-                //style: ButtonStyle(backgroundColor: Colors.white),
-                child: Text(
-                  "$_CurrentSelectedDateonString",
-                  style: TextStyle(
-                      color: Colors.white, fontSize: 20, letterSpacing: 1.5),
-                )),
+            Container(
+              decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  border: Border.all(color: Colors.white),borderRadius: BorderRadius.circular(5)),
+              child: TextButton(
+                  onPressed: callDatePicker,
+                  //style: ButtonStyle(backgroundColor: Colors.white),
+                  child: Text(
+                    "$_CurrentSelectedDateonString",
+                    style: TextStyle(
+                        color: Colors.white, fontSize: 20, letterSpacing: 1.5),
+                  )),
+            ),
             //Text("$_CurrentSelectedDate",style: TextStyle(color: Colors.white)),
             SizedBox(
-              height: 20,
+              height: 15,
             ),
             Text(
               "Prioridad",

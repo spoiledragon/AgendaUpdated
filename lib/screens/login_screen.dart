@@ -54,11 +54,6 @@ class _LoginScreenState extends State<LoginScreen> {
     SharedPreferences pref = await SharedPreferences.getInstance();
     email = pref.getString("mail")!;
     password = pref.getString("password")!;
-
-    if (email != null || email != "") {
-      emailController.text = email;
-      passwordController.text = password;
-    }
   }
 
   @override
@@ -66,36 +61,48 @@ class _LoginScreenState extends State<LoginScreen> {
     //funciones de ingreso
 
     void login() async {
-      try {
-        var url =
-            "https://thelmaxd.000webhostapp.com/Agendapp/login.php?email=" +
-                emailController.text +
-                "&pass=" +
-                passwordController.text;
-        Response response = await get(Uri.parse(url));
-        //aqui sacamos los datos y los metemos a un array
-        var user_Response = json.decode(response.body);
-        //definimos la lista
-        List<User> Usuarios = [];
-        //recorremos el arreglo en el caso de que haya mas de uno
-        for (var responsejson in user_Response) {
-          Usuarios.add(User.fromJson(responsejson));
+      if (emailController.text.isNotEmpty &&
+          passwordController.text.isNotEmpty) {
+        try {
+          var url =
+              "https://thelmaxd.000webhostapp.com/Agendapp/login.php?email=" +
+                  emailController.text +
+                  "&pass=" +
+                  passwordController.text;
+          Response response = await get(Uri.parse(url));
+          //aqui sacamos los datos y los metemos a un array
+          var user_Response = json.decode(response.body);
+          //definimos la lista
+          List<User> Usuarios = [];
+          //recorremos el arreglo en el caso de que haya mas de uno
+          //print(user_Response);
+          if (user_Response[0]["Error"] == '2') {
+            _showToast(context, "Usuario o Contraseña Incorrecta");
+            return;
+          }
+          for (var responsejson in user_Response) {
+            Usuarios.add(User.fromJson(responsejson));
+          }
+      
+          
+
+          //print("Esta data");
+          if (Usuarios[0].error == "69") {
+            //shared preferenes aqui
+            save_data(emailController.text, passwordController.text);
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeScreen(Usuarios[0].id)));
+            _showToast(context, "Logeado con Exito");
+          } else {
+            _showToast(context, "Login Incorrecto");
+          }
+        } catch (e) {
+          print(e);
         }
-        print(Usuarios[0].id);
-        //print("Esta data");
-        if (Usuarios[0].error == "69") {
-          //shared preferenes aqui
-          save_data(emailController.text, passwordController.text);
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => HomeScreen(Usuarios[0].id)));
-          _showToast(context, "Logeado con Exito");
-        } else {
-          _showToast(context, "Login Incorrecto");
-        }
-      } catch (e) {
-        print(e);
+      } else {
+        _showToast(context, "Faltan Campos por Completar");
       }
     }
 
@@ -196,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 400,
                           child: ClipOval(
                             child: Image.asset(
-                              "assets/este.png",
+                              "assets/Logo2.jpeg",
                               fit: BoxFit.cover,
                             ),
                           ))),
