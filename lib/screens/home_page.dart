@@ -670,7 +670,8 @@ class _addReminderState extends ConsumerState<addReminder> {
             Container(
               decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
-                  border: Border.all(color: Colors.white),borderRadius: BorderRadius.circular(5)),
+                  border: Border.all(color: Colors.white),
+                  borderRadius: BorderRadius.circular(5)),
               child: TextButton(
                   onPressed: callDatePicker,
                   //style: ButtonStyle(backgroundColor: Colors.white),

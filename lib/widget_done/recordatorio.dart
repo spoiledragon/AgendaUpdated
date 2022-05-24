@@ -34,6 +34,7 @@ class _reminderState extends State<reminder> {
     if (widget.prioridad == "High") {
       colorines = Colors.red;
     }
+
     return Container(
       height: 100,
       decoration: BoxDecoration(
@@ -86,6 +87,9 @@ class _reminderState extends State<reminder> {
         ),
 
         Text(widget.hora, style: TextStyle(color: Colors.white)),
+       
+
+        
       ]),
     );
   }

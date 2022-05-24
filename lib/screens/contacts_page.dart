@@ -90,6 +90,12 @@ class _Contact_ListState extends State<Contact_List> {
 
   //PARA ENVIAR EL DATO NUEVO
   void addContact(id) async {
+    bool codeValid = RegExp("[0-9]").hasMatch(_telEditingController.text);
+    if (!codeValid) {
+      _showToast(context, "Revisa el Telefono");
+      return;
+    }
+
     //https://thelmaxd.000webhostapp.com/Agendapp/add_contact.php?id=1&name=pedrito&email=borraro@gmail.com&tel=1234
     var url =
         "https://thelmaxd.000webhostapp.com/Agendapp/add_contact.php?id=" +
@@ -109,6 +115,17 @@ class _Contact_ListState extends State<Contact_List> {
   //para editar el datox
   //https://thelmaxd.000webhostapp.com/Agendapp/edit_contact.php?id=36&url=https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png
   void editcontact(index, ruta, nombre, email, telefono) async {
+    bool codeValid = RegExp("[0-9]").hasMatch(_telEditingController.text);
+    if (!codeValid) {
+      _showToast(context, "Revisa el Telefono");
+      return;
+    }
+
+    bool emailValid = RegExp("[a-z]+@")
+          .hasMatch(_emailEditingController.text);
+    if(!emailValid){
+      _showToast(context, "Ten Cuidado con los Correos Amiguito");
+    }
     var url =
         "https://thelmaxd.000webhostapp.com/Agendapp/edit_contact.php?id=" +
             contacts[index].id +
@@ -124,6 +141,16 @@ class _Contact_ListState extends State<Contact_List> {
     print(response);
     List<Contact> _contacts = [];
     _loadUser();
+  }
+
+  //PARA DESPLEGAR MENSAJITOS BONITOS , es un toast pues
+  void _showToast(BuildContext context, mensaje) {
+    final scaffold = ScaffoldMessenger.of(context);
+    scaffold.showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+      ),
+    );
   }
 
   @override
@@ -269,16 +296,6 @@ class _Contact_ListState extends State<Contact_List> {
         ),
       ),
     );
-
-//PARA DESPLEGAR MENSAJITOS BONITOS , es un toast pues
-    void _showToast(BuildContext context, mensaje) {
-      final scaffold = ScaffoldMessenger.of(context);
-      scaffold.showSnackBar(
-        SnackBar(
-          content: Text(mensaje),
-        ),
-      );
-    }
 
     void _showModalBottomSheet(BuildContext context, index) {
       setState(() {
